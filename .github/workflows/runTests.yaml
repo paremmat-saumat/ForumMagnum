@@ -49,12 +49,14 @@ jobs:
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
       SKIP_VERCEL_CODE_PULL: true
+      ENV_NAME: test  # required for codegen when skipping Vercel env pull
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
     - name: Setup Environment
       uses: ./.github/actions/setupEnvironment
     - name: Pull Vercel Environment Information
+      if: ${{ vars.ENABLE_VERCEL_CI == 'true' }}
       run: |
         npm install --global vercel@latest
         vercel env pull --yes --environment=development --token=${{ secrets.VERCEL_ACCESS_TOKEN }}
@@ -230,6 +232,7 @@ jobs:
         parallel: true
 
   runIntegrationTests:
+    if: ${{ vars.ENABLE_VERCEL_CI == 'true' }}
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -275,6 +278,7 @@ jobs:
         parallel: true
 
   runPostgresBootstrap:
+    if: ${{ vars.ENABLE_VERCEL_CI == 'true' }}
     runs-on: ubuntu-latest
     services:
       postgres:
